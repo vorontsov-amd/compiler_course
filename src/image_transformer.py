@@ -68,8 +68,8 @@ def open_ppm_p3(ppm_path):
 
 if __name__ == "__main__":
     # Path to your PNG image
-    image_path = "images/1/normal/blue.png"
-    ppm_path = "dvd.ppm"
+    image_path = "../images/1/normal/blue.png"
+    ppm_path = "../output.ppm"
     # png_to_ppm_p3(image_path, ppm_path)
     open_ppm_p3(ppm_path)
 

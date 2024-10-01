@@ -90,7 +90,7 @@ int main(int argc, const char *argv[]) {
                                 color::eOrange, color::ePurple, color::eRed,   color::eYellow};
     constexpr size_t COLOR_COUNT = std::size(COLORS);
 
-    auto image = Image("output.ppm");
+    auto image = Image("../images/ppm/output.ppm");
     auto point = Vector::rand(500, 700, 500, 700);
     auto speed = Vector{10,10};
     image.x = point.x;

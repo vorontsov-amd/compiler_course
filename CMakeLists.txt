@@ -6,5 +6,5 @@ set(CMAKE_CXX_STANDARD 23)
 find_package(SDL2 REQUIRED)
 include_directories(${PROJECT_NAME} ${SDL2_INCLUDE_DIRS})
 
-add_executable(test main.cpp sdl.cpp)
+add_executable(test src/main.cpp src/sdl.cpp)
 target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
