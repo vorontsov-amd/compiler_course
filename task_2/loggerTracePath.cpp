@@ -4,131 +4,69 @@
 using namespace llvm;
 
 struct MyModPass : public PassInfoMixin<MyModPass> {
-
-  bool isFuncLogger(StringRef name) {
-    return name == "binOptLogger" || name == "callLogger" ||
-           name == "funcStartLogger" || name == "funcEndLogger";
-  }
   PreservedAnalyses run(Module &M, ModuleAnalysisManager &AM) {
-    outs() << "[Module] " << M.getName() << "\n";
-    for (auto &F : M) {
-      outs() << "[Function] " << F.getName() << " (arg_size: " << F.arg_size()
-             << ")\n";
-      if (isFuncLogger(F.getName()) || F.isDeclaration()) {
-        continue;
-      }
 
-      for (auto &B : F) {
-        for (auto &I : B) {
-          // Dump Instructions
-          outs() << "Instruction: " << (uint64_t)(&I) << "\n";
-          I.print(outs(), true);
-          outs() << "\n";
-        }
-        outs() << "\n";
+    auto isLogerFunc = [](StringRef funcName) {
+      return funcName == "instLoger";
+    };
+
+    for (auto &F : M) {
+      if (isLogerFunc(F.getName())) {
+        continue;
       }
 
       // Prepare builder for IR modification
       LLVMContext &Ctx = F.getContext();
       IRBuilder<> builder(Ctx);
+
+      // Prepare instLogger function
       Type *retType = Type::getVoidTy(Ctx);
-
-      // Prepare funcStartLogger function
-      ArrayRef<Type *> funcStartParamTypes = {
+      ArrayRef<Type *> instLoggerParamTypes = {
+          builder.getInt8Ty()->getPointerTo(),
           builder.getInt8Ty()->getPointerTo()};
-      FunctionType *funcStartLogFuncType =
-          FunctionType::get(retType, funcStartParamTypes, false);
-      FunctionCallee funcStartLogFunc =
-          M.getOrInsertFunction("funcStartLogger", funcStartLogFuncType);
 
-      // Insert a call to funcStartLogger function in the function begin
-      BasicBlock &entryBB = F.getEntryBlock();
-      builder.SetInsertPoint(&entryBB.front());
-      Value *funcName = builder.CreateGlobalStringPtr(F.getName());
-      Value *args[] = {funcName};
-      builder.CreateCall(funcStartLogFunc, args);
+      FunctionType *instLoggerFuncType =
+          FunctionType::get(retType, instLoggerParamTypes, false);
+      FunctionCallee instLoggerFunc =
+          M.getOrInsertFunction("instLoger", instLoggerFuncType);
 
-      // Prepare callLogger function
-      ArrayRef<Type *> callParamTypes = {builder.getInt8Ty()->getPointerTo(),
-                                         builder.getInt8Ty()->getPointerTo(),
-                                         Type::getInt64Ty(Ctx)};
-      FunctionType *callLogFuncType =
-          FunctionType::get(retType, callParamTypes, false);
-      FunctionCallee callLogFunc =
-          M.getOrInsertFunction("callLogger", callLogFuncType);
-
-      // Prepare funcEndLogger function
-      ArrayRef<Type *> funcEndParamTypes = {builder.getInt8Ty()->getPointerTo(),
-                                            Type::getInt64Ty(Ctx)};
-      FunctionType *funcEndLogFuncType =
-          FunctionType::get(retType, funcEndParamTypes, false);
-      FunctionCallee funcEndLogFunc =
-          M.getOrInsertFunction("funcEndLogger", funcEndLogFuncType);
-
-      // Prepare binOptLogger function
-      ArrayRef<Type *> binOptParamTypes = {Type::getInt32Ty(Ctx),
-                                           Type::getInt32Ty(Ctx),
-                                           Type::getInt32Ty(Ctx),
-                                           builder.getInt8Ty()->getPointerTo(),
-                                           builder.getInt8Ty()->getPointerTo(),
-                                           Type::getInt64Ty(Ctx)};
-      FunctionType *binOptLogFuncType =
-          FunctionType::get(retType, binOptParamTypes, false);
-      FunctionCallee binOptLogFunc =
-          M.getOrInsertFunction("binOptLogger", binOptLogFuncType);
-
-      // Insert loggers for call, binOpt and ret instructions
       for (auto &B : F) {
         for (auto &I : B) {
-          Value *valueAddr =
-              ConstantInt::get(builder.getInt64Ty(), (int64_t)(&I));
-          if (auto *call = dyn_cast<CallInst>(&I)) {
-            // Insert before call
-            builder.SetInsertPoint(call);
+          // Skip PHINode
+          if (isa<PHINode>(I)) {
+            continue;
+          }
 
-            // Insert a call to callLogger function
-            Function *callee = call->getCalledFunction();
-            if (callee && !isFuncLogger(callee->getName())) {
-              Value *calleeName =
-                  builder.CreateGlobalStringPtr(callee->getName());
-              Value *funcName = builder.CreateGlobalStringPtr(F.getName());
-              Value *args[] = {funcName, calleeName, valueAddr};
-              builder.CreateCall(callLogFunc, args);
+          // Insert before Instruction
+          builder.SetInsertPoint(&I);
+          Value *instName = builder.CreateGlobalStringPtr(I.getOpcodeName());
+
+          bool hasUserInst = false;
+          for (auto &&U : I.users()) {
+            if (auto &&UI = dyn_cast<Instruction>(U)) {
+              hasUserInst = true;
+              Value *userName =
+                  builder.CreateGlobalStringPtr(UI->getOpcodeName());
+              Value *args[] = {instName, userName};
+              builder.CreateCall(instLoggerFunc, args);
             }
           }
-          if (auto *ret = dyn_cast<ReturnInst>(&I)) {
-            // Insert before ret
-            builder.SetInsertPoint(ret);
 
-            // Insert a call to funcEndLogFunc function
-            Value *funcName = builder.CreateGlobalStringPtr(F.getName());
-            Value *args[] = {funcName, valueAddr};
-            builder.CreateCall(funcEndLogFunc, args);
-          }
-          if (auto *op = dyn_cast<BinaryOperator>(&I)) {
-            // Insert after op
-            builder.SetInsertPoint(op);
-            builder.SetInsertPoint(&B, ++builder.GetInsertPoint());
-
-            // Insert a call to binOptLogFunc function
-            Value *lhs = op->getOperand(0);
-            Value *rhs = op->getOperand(1);
-            Value *funcName = builder.CreateGlobalStringPtr(F.getName());
-            Value *opName = builder.CreateGlobalStringPtr(op->getOpcodeName());
-            Value *args[] = {op, lhs, rhs, opName, funcName, valueAddr};
-            builder.CreateCall(binOptLogFunc, args);
+          if (hasUserInst == false) {
+            Value *args[] = {instName,
+                             ConstantPointerNull::get(builder.getInt8PtrTy())};
+            builder.CreateCall(instLoggerFunc, args);
           }
         }
       }
     }
-    outs() << "\n";
     return PreservedAnalyses::none();
-  };
+  }
 };
 
 PassPluginLibraryInfo getPassPluginInfo() {
   const auto callback = [](PassBuilder &PB) {
-    PB.registerPipelineStartEPCallback([&](ModulePassManager &MPM, auto) {
+    PB.registerOptimizerEarlyEPCallback([&](ModulePassManager &MPM, auto) {
       MPM.addPass(MyModPass{});
       return true;
     });
