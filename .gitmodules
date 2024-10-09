@@ -1,0 +1,3 @@
+[submodule "llvm_course"]
+	path = llvm_course
+	url = https://github.com/lisitsynSA/llvm_course.git
