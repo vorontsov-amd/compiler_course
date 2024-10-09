@@ -54,7 +54,7 @@ struct MyModPass : public PassInfoMixin<MyModPass> {
 
           if (hasUserInst == false) {
             Value *args[] = {instName,
-                             ConstantPointerNull::get(builder.getInt8PtrTy())};
+                             ConstantPointerNull::get(builder.getInt8Ty()->getPointerTo())};
             builder.CreateCall(instLoggerFunc, args);
           }
         }
