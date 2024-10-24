@@ -1,6 +1,6 @@
 ; ModuleID = '../src/main.cpp'
 source_filename = "../src/main.cpp"
-target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-pc-linux-gnu"
 
 %"struct.std::nothrow_t" = type { i8 }
@@ -36,11 +36,11 @@ $_ZNSt23mersenne_twister_engineImLm32ELm624ELm397ELm31ELm2567483615ELm11ELm42949
 @.str.8 = private unnamed_addr constant [8 x i8] c"default\00", align 1
 @str = private unnamed_addr constant [36 x i8] c"Could not allocate memory for image\00", align 1
 
-; Function Attrs: norecurse noreturn uwtable
+; Function Attrs: mustprogress norecurse noreturn sspstrong uwtable
 define dso_local noundef i32 @main(i32 noundef %0, ptr nocapture noundef readnone %1) local_unnamed_addr #0 personality ptr @__gxx_personality_v0 {
   %3 = alloca %struct.Image, align 8
-  tail call void @_Z7simInitv()
-  call void @llvm.lifetime.start.p0(i64 32, ptr nonnull %3) #14
+  tail call void @simInit()
+  call void @llvm.lifetime.start.p0(i64 32, ptr nonnull %3) #13
   call void @_ZN5ImageC2EPKc(ptr noundef nonnull align 8 dereferenceable(32) %3, ptr noundef nonnull @.str)
   %4 = invoke i64 @_ZN6Vector4randEiiii(i32 noundef 500, i32 noundef 700, i32 noundef 500, i32 noundef 700)
           to label %5 unwind label %35
@@ -79,7 +79,7 @@ define dso_local noundef i32 @main(i32 noundef %0, ptr nocapture noundef readnon
   %29 = sub nsw i32 0, %18
   %30 = add nsw i32 %19, 1
   %31 = and i32 %19, 7
-  %32 = zext i32 %31 to i64
+  %32 = zext nneg i32 %31 to i64
   %33 = getelementptr inbounds [8 x i32], ptr @__const.main.COLORS, i64 0, i64 %32
   %34 = load i32, ptr %33, align 4, !tbaa !13
   store i32 %34, ptr %11, align 8, !tbaa !15
@@ -108,7 +108,7 @@ define dso_local noundef i32 @main(i32 noundef %0, ptr nocapture noundef readnon
   %49 = sub nsw i32 0, %17
   %50 = add nsw i32 %39, 1
   %51 = and i32 %39, 7
-  %52 = zext i32 %51 to i64
+  %52 = zext nneg i32 %51 to i64
   %53 = getelementptr inbounds [8 x i32], ptr @__const.main.COLORS, i64 0, i64 %52
   %54 = load i32, ptr %53, align 4, !tbaa !13
   store i32 %54, ptr %11, align 8, !tbaa !15
@@ -117,7 +117,7 @@ define dso_local noundef i32 @main(i32 noundef %0, ptr nocapture noundef readnon
 55:                                               ; preds = %37, %45
   %56 = phi i32 [ %49, %45 ], [ %17, %37 ]
   %57 = phi i32 [ %50, %45 ], [ %39, %37 ]
-  invoke void @_Z14simClearWindowv()
+  invoke void @simClearWindow()
           to label %58 unwind label %108
 
 58:                                               ; preds = %55
@@ -168,7 +168,7 @@ define dso_local noundef i32 @main(i32 noundef %0, ptr nocapture noundef readnon
   %91 = load i32, ptr %3, align 8, !tbaa !5
   %92 = add nsw i32 %91, %67
   %93 = load i32, ptr %11, align 8, !tbaa !15
-  invoke void @_Z11simPutPixeliii(i32 noundef %92, i32 noundef %90, i32 noundef %93)
+  invoke void @simPutPixel(i32 noundef %92, i32 noundef %90, i32 noundef %93)
           to label %94 unwind label %106
 
 94:                                               ; preds = %88
@@ -182,7 +182,7 @@ define dso_local noundef i32 @main(i32 noundef %0, ptr nocapture noundef readnon
   br i1 %99, label %77, label %69, !llvm.loop !21
 
 100:                                              ; preds = %71, %58
-  invoke void @_Z8simFlushv()
+  invoke void @simFlush()
           to label %101 unwind label %108
 
 101:                                              ; preds = %100
@@ -211,15 +211,15 @@ define dso_local noundef i32 @main(i32 noundef %0, ptr nocapture noundef readnon
   br i1 %114, label %116, label %115
 
 115:                                              ; preds = %110
-  call void @_ZdaPv(ptr noundef nonnull %113) #15
+  call void @_ZdaPv(ptr noundef nonnull %113) #14
   br label %116
 
 116:                                              ; preds = %110, %115
-  call void @llvm.lifetime.end.p0(i64 32, ptr nonnull %3) #14
+  call void @llvm.lifetime.end.p0(i64 32, ptr nonnull %3) #13
   resume { ptr, i32 } %111
 }
 
-declare void @_Z7simInitv() local_unnamed_addr #1
+declare void @simInit() local_unnamed_addr #1
 
 ; Function Attrs: mustprogress nocallback nofree nosync nounwind willreturn memory(argmem: readwrite)
 declare void @llvm.lifetime.start.p0(i64 immarg, ptr nocapture) #2
@@ -227,7 +227,7 @@ declare void @llvm.lifetime.start.p0(i64 immarg, ptr nocapture) #2
 ; Function Attrs: mustprogress nocallback nofree nounwind willreturn memory(argmem: readwrite)
 declare void @llvm.memcpy.p0.p0.i64(ptr noalias nocapture writeonly, ptr noalias nocapture readonly, i64, i1 immarg) #3
 
-; Function Attrs: uwtable
+; Function Attrs: mustprogress sspstrong uwtable
 define linkonce_odr dso_local void @_ZN5ImageC2EPKc(ptr noundef nonnull align 8 dereferenceable(32) %0, ptr noundef %1) unnamed_addr #4 comdat align 2 {
   %3 = alloca i32, align 4
   %4 = alloca i32, align 4
@@ -259,11 +259,11 @@ define linkonce_odr dso_local void @_ZN5ImageC2EPKc(ptr noundef nonnull align 8 
   %20 = load i32, ptr %6, align 8, !tbaa !12
   %21 = load i32, ptr %7, align 4, !tbaa !16
   %22 = mul nsw i32 %21, %20
-  %23 = zext i32 %22 to i64
+  %23 = sext i32 %22 to i64
   %24 = icmp slt i32 %22, 0
-  %25 = shl nuw nsw i64 %23, 2
+  %25 = shl nsw i64 %23, 2
   %26 = select i1 %24, i64 -1, i64 %25
-  %27 = tail call noalias noundef ptr @_ZnamRKSt9nothrow_t(i64 noundef %26, ptr noundef nonnull align 1 dereferenceable(1) @_ZSt7nothrow) #16
+  %27 = tail call noalias noundef ptr @_ZnamRKSt9nothrow_t(i64 noundef %26, ptr noundef nonnull align 1 dereferenceable(1) @_ZSt7nothrow) #15
   store ptr %27, ptr %9, align 8, !tbaa !19
   %28 = icmp eq ptr %27, null
   br i1 %28, label %29, label %34
@@ -286,11 +286,11 @@ define linkonce_odr dso_local void @_ZN5ImageC2EPKc(ptr noundef nonnull align 8 
 
 39:                                               ; preds = %34, %57
   %40 = phi i64 [ %58, %57 ], [ 0, %34 ]
-  call void @llvm.lifetime.start.p0(i64 4, ptr nonnull %3) #14
+  call void @llvm.lifetime.start.p0(i64 4, ptr nonnull %3) #13
   store i32 0, ptr %3, align 4, !tbaa !20
-  call void @llvm.lifetime.start.p0(i64 4, ptr nonnull %4) #14
+  call void @llvm.lifetime.start.p0(i64 4, ptr nonnull %4) #13
   store i32 0, ptr %4, align 4, !tbaa !20
-  call void @llvm.lifetime.start.p0(i64 4, ptr nonnull %5) #14
+  call void @llvm.lifetime.start.p0(i64 4, ptr nonnull %5) #13
   store i32 0, ptr %5, align 4, !tbaa !20
   %41 = call i32 (ptr, ptr, ...) @__isoc23_fscanf(ptr noundef %10, ptr noundef nonnull @.str.6, ptr noundef nonnull %3, ptr noundef nonnull %4, ptr noundef nonnull %5)
   %42 = icmp eq i32 %41, 3
@@ -319,9 +319,9 @@ define linkonce_odr dso_local void @_ZN5ImageC2EPKc(ptr noundef nonnull align 8 
   br label %57
 
 57:                                               ; preds = %56, %45
-  call void @llvm.lifetime.end.p0(i64 4, ptr nonnull %5) #14
-  call void @llvm.lifetime.end.p0(i64 4, ptr nonnull %4) #14
-  call void @llvm.lifetime.end.p0(i64 4, ptr nonnull %3) #14
+  call void @llvm.lifetime.end.p0(i64 4, ptr nonnull %5) #13
+  call void @llvm.lifetime.end.p0(i64 4, ptr nonnull %4) #13
+  call void @llvm.lifetime.end.p0(i64 4, ptr nonnull %3) #13
   %58 = add nuw nsw i64 %40, 1
   %59 = load i32, ptr %6, align 8, !tbaa !12
   %60 = load i32, ptr %7, align 4, !tbaa !16
@@ -331,15 +331,15 @@ define linkonce_odr dso_local void @_ZN5ImageC2EPKc(ptr noundef nonnull align 8 
   br i1 %63, label %39, label %37, !llvm.loop !23
 }
 
-; Function Attrs: uwtable
+; Function Attrs: mustprogress sspstrong uwtable
 define linkonce_odr dso_local i64 @_ZN6Vector4randEiiii(i32 noundef %0, i32 noundef %1, i32 noundef %2, i32 noundef %3) local_unnamed_addr #4 comdat align 2 personality ptr @__gxx_personality_v0 {
   %5 = alloca %"class.std::__cxx11::basic_string", align 8
   %6 = alloca %"class.std::random_device", align 8
   %7 = alloca %"class.std::mersenne_twister_engine", align 8
   %8 = alloca %"class.std::uniform_int_distribution", align 4
   %9 = alloca %"class.std::uniform_int_distribution", align 4
-  call void @llvm.lifetime.start.p0(i64 5000, ptr nonnull %6) #14
-  call void @llvm.lifetime.start.p0(i64 32, ptr nonnull %5) #14
+  call void @llvm.lifetime.start.p0(i64 5000, ptr nonnull %6) #13
+  call void @llvm.lifetime.start.p0(i64 32, ptr nonnull %5) #13
   %10 = getelementptr inbounds %"class.std::__cxx11::basic_string", ptr %5, i64 0, i32 2
   store ptr %10, ptr %5, align 8, !tbaa !24
   call void @llvm.memcpy.p0.p0.i64(ptr noundef nonnull align 8 dereferenceable(7) %10, ptr noundef nonnull align 1 dereferenceable(7) @.str.8, i64 7, i1 false)
@@ -362,7 +362,7 @@ define linkonce_odr dso_local i64 @_ZN6Vector4randEiiii(i32 noundef %0, i32 noun
   br label %31
 
 19:                                               ; preds = %13
-  call void @_ZdlPv(ptr noundef %14) #15
+  call void @_ZdlPv(ptr noundef %14) #14
   br label %31
 
 20:                                               ; preds = %4
@@ -379,7 +379,7 @@ define linkonce_odr dso_local i64 @_ZN6Vector4randEiiii(i32 noundef %0, i32 noun
   br label %30
 
 27:                                               ; preds = %20
-  call void @_ZdlPv(ptr noundef %22) #15
+  call void @_ZdlPv(ptr noundef %22) #14
   br label %30
 
 28:                                               ; preds = %79, %30
@@ -387,12 +387,12 @@ define linkonce_odr dso_local i64 @_ZN6Vector4randEiiii(i32 noundef %0, i32 noun
   resume { ptr, i32 } %29
 
 30:                                               ; preds = %27, %24
-  call void @llvm.lifetime.end.p0(i64 32, ptr nonnull %5) #14
+  call void @llvm.lifetime.end.p0(i64 32, ptr nonnull %5) #13
   br label %28
 
 31:                                               ; preds = %16, %19
-  call void @llvm.lifetime.end.p0(i64 32, ptr nonnull %5) #14
-  call void @llvm.lifetime.start.p0(i64 5000, ptr nonnull %7) #14
+  call void @llvm.lifetime.end.p0(i64 32, ptr nonnull %5) #13
+  call void @llvm.lifetime.start.p0(i64 5000, ptr nonnull %7) #13
   %32 = invoke noundef i32 @_ZNSt13random_device9_M_getvalEv(ptr noundef nonnull align 8 dereferenceable(5000) %6)
           to label %33 unwind label %70
 
@@ -429,11 +429,11 @@ define linkonce_odr dso_local i64 @_ZN6Vector4randEiiii(i32 noundef %0, i32 noun
 54:                                               ; preds = %35
   %55 = getelementptr inbounds %"class.std::mersenne_twister_engine", ptr %7, i64 0, i32 1
   store i64 624, ptr %55, align 8, !tbaa !33
-  call void @llvm.lifetime.start.p0(i64 8, ptr nonnull %8) #14
+  call void @llvm.lifetime.start.p0(i64 8, ptr nonnull %8) #13
   store i32 %0, ptr %8, align 4, !tbaa !35
   %56 = getelementptr inbounds %"struct.std::uniform_int_distribution<>::param_type", ptr %8, i64 0, i32 1
   store i32 %1, ptr %56, align 4, !tbaa !37
-  call void @llvm.lifetime.start.p0(i64 8, ptr nonnull %9) #14
+  call void @llvm.lifetime.start.p0(i64 8, ptr nonnull %9) #13
   store i32 %2, ptr %9, align 4, !tbaa !35
   %57 = getelementptr inbounds %"struct.std::uniform_int_distribution<>::param_type", ptr %9, i64 0, i32 1
   store i32 %3, ptr %57, align 4, !tbaa !37
@@ -445,9 +445,9 @@ define linkonce_odr dso_local i64 @_ZN6Vector4randEiiii(i32 noundef %0, i32 noun
           to label %61 unwind label %72
 
 61:                                               ; preds = %59
-  call void @llvm.lifetime.end.p0(i64 8, ptr nonnull %9) #14
-  call void @llvm.lifetime.end.p0(i64 8, ptr nonnull %8) #14
-  call void @llvm.lifetime.end.p0(i64 5000, ptr nonnull %7) #14
+  call void @llvm.lifetime.end.p0(i64 8, ptr nonnull %9) #13
+  call void @llvm.lifetime.end.p0(i64 8, ptr nonnull %8) #13
+  call void @llvm.lifetime.end.p0(i64 5000, ptr nonnull %7) #13
   invoke void @_ZNSt13random_device7_M_finiEv(ptr noundef nonnull align 8 dereferenceable(5000) %6)
           to label %65 unwind label %62
 
@@ -455,15 +455,15 @@ define linkonce_odr dso_local i64 @_ZN6Vector4randEiiii(i32 noundef %0, i32 noun
   %63 = landingpad { ptr, i32 }
           catch ptr null
   %64 = extractvalue { ptr, i32 } %63, 0
-  call void @__clang_call_terminate(ptr %64) #17
+  call void @__clang_call_terminate(ptr %64) #16
   unreachable
 
 65:                                               ; preds = %61
-  call void @llvm.lifetime.end.p0(i64 5000, ptr nonnull %6) #14
+  call void @llvm.lifetime.end.p0(i64 5000, ptr nonnull %6) #13
   %66 = zext i32 %60 to i64
   %67 = shl nuw i64 %66, 32
   %68 = zext i32 %58 to i64
-  %69 = or i64 %67, %68
+  %69 = or disjoint i64 %67, %68
   ret i64 %69
 
 70:                                               ; preds = %31
@@ -474,13 +474,13 @@ define linkonce_odr dso_local i64 @_ZN6Vector4randEiiii(i32 noundef %0, i32 noun
 72:                                               ; preds = %59, %54
   %73 = landingpad { ptr, i32 }
           cleanup
-  call void @llvm.lifetime.end.p0(i64 8, ptr nonnull %9) #14
-  call void @llvm.lifetime.end.p0(i64 8, ptr nonnull %8) #14
+  call void @llvm.lifetime.end.p0(i64 8, ptr nonnull %9) #13
+  call void @llvm.lifetime.end.p0(i64 8, ptr nonnull %8) #13
   br label %74
 
 74:                                               ; preds = %72, %70
   %75 = phi { ptr, i32 } [ %73, %72 ], [ %71, %70 ]
-  call void @llvm.lifetime.end.p0(i64 5000, ptr nonnull %7) #14
+  call void @llvm.lifetime.end.p0(i64 5000, ptr nonnull %7) #13
   invoke void @_ZNSt13random_device7_M_finiEv(ptr noundef nonnull align 8 dereferenceable(5000) %6)
           to label %79 unwind label %76
 
@@ -488,11 +488,11 @@ define linkonce_odr dso_local i64 @_ZN6Vector4randEiiii(i32 noundef %0, i32 noun
   %77 = landingpad { ptr, i32 }
           catch ptr null
   %78 = extractvalue { ptr, i32 } %77, 0
-  call void @__clang_call_terminate(ptr %78) #17
+  call void @__clang_call_terminate(ptr %78) #16
   unreachable
 
 79:                                               ; preds = %74
-  call void @llvm.lifetime.end.p0(i64 5000, ptr nonnull %6) #14
+  call void @llvm.lifetime.end.p0(i64 5000, ptr nonnull %6) #13
   br label %28
 }
 
@@ -501,9 +501,9 @@ declare i32 @__gxx_personality_v0(...)
 ; Function Attrs: mustprogress nocallback nofree nosync nounwind willreturn memory(argmem: readwrite)
 declare void @llvm.lifetime.end.p0(i64 immarg, ptr nocapture) #2
 
-declare void @_Z14simClearWindowv() local_unnamed_addr #1
+declare void @simClearWindow() local_unnamed_addr #1
 
-declare void @_Z8simFlushv() local_unnamed_addr #1
+declare void @simFlush() local_unnamed_addr #1
 
 ; Function Attrs: nofree nounwind
 declare noalias noundef ptr @fopen(ptr nocapture noundef readonly, ptr nocapture noundef readonly) local_unnamed_addr #5
@@ -521,10 +521,10 @@ declare noundef i32 @fclose(ptr nocapture noundef) local_unnamed_addr #5
 
 declare void @_ZNSt13random_device7_M_initERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE(ptr noundef nonnull align 8 dereferenceable(5000), ptr noundef nonnull align 8 dereferenceable(32)) local_unnamed_addr #1
 
-; Function Attrs: noinline noreturn nounwind
+; Function Attrs: noinline noreturn nounwind sspstrong uwtable
 define linkonce_odr hidden void @__clang_call_terminate(ptr noundef %0) local_unnamed_addr #7 comdat {
-  %2 = tail call ptr @__cxa_begin_catch(ptr %0) #14
-  tail call void @_ZSt9terminatev() #17
+  %2 = tail call ptr @__cxa_begin_catch(ptr %0) #13
+  tail call void @_ZSt9terminatev() #16
   unreachable
 }
 
@@ -537,7 +537,7 @@ declare void @_ZdlPv(ptr noundef) local_unnamed_addr #8
 
 declare noundef i32 @_ZNSt13random_device9_M_getvalEv(ptr noundef nonnull align 8 dereferenceable(5000)) local_unnamed_addr #1
 
-; Function Attrs: uwtable
+; Function Attrs: mustprogress sspstrong uwtable
 define linkonce_odr dso_local noundef i32 @_ZNSt24uniform_int_distributionIiEclISt23mersenne_twister_engineImLm32ELm624ELm397ELm31ELm2567483615ELm11ELm4294967295ELm7ELm2636928640ELm15ELm4022730752ELm18ELm1812433253EEEEiRT_RKNS0_10param_typeE(ptr noundef nonnull align 4 dereferenceable(8) %0, ptr noundef nonnull align 8 dereferenceable(5000) %1, ptr noundef nonnull align 4 dereferenceable(8) %2) local_unnamed_addr #4 comdat align 2 {
   %4 = alloca %"struct.std::uniform_int_distribution<>::param_type", align 4
   %5 = getelementptr inbounds %"struct.std::uniform_int_distribution<>::param_type", ptr %2, i64 0, i32 1
@@ -586,13 +586,13 @@ define linkonce_odr dso_local noundef i32 @_ZNSt24uniform_int_distributionIiEclI
   br label %36
 
 36:                                               ; preds = %34, %36
-  call void @llvm.lifetime.start.p0(i64 8, ptr nonnull %4) #14
+  call void @llvm.lifetime.start.p0(i64 8, ptr nonnull %4) #13
   store i32 0, ptr %4, align 4, !tbaa !35
   store i32 -1, ptr %35, align 4, !tbaa !37
   %37 = call noundef i32 @_ZNSt24uniform_int_distributionIiEclISt23mersenne_twister_engineImLm32ELm624ELm397ELm31ELm2567483615ELm11ELm4294967295ELm7ELm2636928640ELm15ELm4022730752ELm18ELm1812433253EEEEiRT_RKNS0_10param_typeE(ptr noundef nonnull align 4 dereferenceable(8) %0, ptr noundef nonnull align 8 dereferenceable(5000) %1, ptr noundef nonnull align 4 dereferenceable(8) %4)
-  %38 = zext i32 %37 to i64
-  %39 = shl nuw i64 %38, 32
-  call void @llvm.lifetime.end.p0(i64 8, ptr nonnull %4) #14
+  %38 = sext i32 %37 to i64
+  %39 = shl nsw i64 %38, 32
+  call void @llvm.lifetime.end.p0(i64 8, ptr nonnull %4) #13
   %40 = call noundef i64 @_ZNSt23mersenne_twister_engineImLm32ELm624ELm397ELm31ELm2567483615ELm11ELm4294967295ELm7ELm2636928640ELm15ELm4022730752ELm18ELm1812433253EEclEv(ptr noundef nonnull align 8 dereferenceable(5000) %1)
   %41 = add i64 %39, %40
   %42 = icmp ugt i64 %41, %10
@@ -612,8 +612,8 @@ define linkonce_odr dso_local noundef i32 @_ZNSt24uniform_int_distributionIiEclI
   ret i32 %51
 }
 
-; Function Attrs: mustprogress uwtable
-define linkonce_odr dso_local noundef i64 @_ZNSt23mersenne_twister_engineImLm32ELm624ELm397ELm31ELm2567483615ELm11ELm4294967295ELm7ELm2636928640ELm15ELm4022730752ELm18ELm1812433253EEclEv(ptr noundef nonnull align 8 dereferenceable(5000) %0) local_unnamed_addr #9 comdat align 2 {
+; Function Attrs: mustprogress sspstrong uwtable
+define linkonce_odr dso_local noundef i64 @_ZNSt23mersenne_twister_engineImLm32ELm624ELm397ELm31ELm2567483615ELm11ELm4294967295ELm7ELm2636928640ELm15ELm4022730752ELm18ELm1812433253EEclEv(ptr noundef nonnull align 8 dereferenceable(5000) %0) local_unnamed_addr #4 comdat align 2 {
   %2 = getelementptr inbounds %"class.std::mersenne_twister_engine", ptr %0, i64 0, i32 1
   %3 = load i64, ptr %2, align 8, !tbaa !33
   %4 = icmp ugt i64 %3, 623
@@ -628,13 +628,13 @@ define linkonce_odr dso_local noundef i64 @_ZNSt23mersenne_twister_engineImLm32E
   %9 = phi i64 [ 0, %5 ], [ %28, %8 ]
   %10 = phi <2 x i64> [ %7, %5 ], [ %14, %8 ]
   %11 = getelementptr inbounds [624 x i64], ptr %0, i64 0, i64 %9
-  %12 = or i64 %9, 1
+  %12 = or disjoint i64 %9, 1
   %13 = getelementptr inbounds [624 x i64], ptr %0, i64 0, i64 %12
   %14 = load <2 x i64>, ptr %13, align 8, !tbaa !31
   %15 = shufflevector <2 x i64> %10, <2 x i64> %14, <2 x i32> <i32 1, i32 2>
   %16 = and <2 x i64> %15, <i64 -2147483648, i64 -2147483648>
   %17 = and <2 x i64> %14, <i64 2147483646, i64 2147483646>
-  %18 = or <2 x i64> %17, %16
+  %18 = or disjoint <2 x i64> %17, %16
   %19 = add nuw nsw i64 %9, 397
   %20 = getelementptr inbounds [624 x i64], ptr %0, i64 0, i64 %19
   %21 = load <2 x i64>, ptr %20, align 8, !tbaa !31
@@ -656,7 +656,7 @@ define linkonce_odr dso_local noundef i64 @_ZNSt23mersenne_twister_engineImLm32E
   %34 = getelementptr inbounds [624 x i64], ptr %0, i64 0, i64 227
   %35 = load i64, ptr %34, align 8, !tbaa !31
   %36 = and i64 %35, 2147483646
-  %37 = or i64 %36, %33
+  %37 = or disjoint i64 %36, %33
   %38 = getelementptr inbounds [624 x i64], ptr %0, i64 0, i64 623
   %39 = load i64, ptr %38, align 8, !tbaa !31
   %40 = lshr exact i64 %37, 1
@@ -682,7 +682,7 @@ define linkonce_odr dso_local noundef i64 @_ZNSt23mersenne_twister_engineImLm32E
   %57 = shufflevector <2 x i64> %51, <2 x i64> %56, <2 x i32> <i32 1, i32 2>
   %58 = and <2 x i64> %57, <i64 -2147483648, i64 -2147483648>
   %59 = and <2 x i64> %56, <i64 2147483646, i64 2147483646>
-  %60 = or <2 x i64> %59, %58
+  %60 = or disjoint <2 x i64> %59, %58
   %61 = getelementptr inbounds [624 x i64], ptr %0, i64 0, i64 %50
   %62 = load <2 x i64>, ptr %61, align 8, !tbaa !31
   %63 = lshr exact <2 x i64> %60, <i64 1, i64 1>
@@ -702,7 +702,7 @@ define linkonce_odr dso_local noundef i64 @_ZNSt23mersenne_twister_engineImLm32E
   %74 = and i64 %73, -2147483648
   %75 = load i64, ptr %0, align 8, !tbaa !31
   %76 = and i64 %75, 2147483646
-  %77 = or i64 %76, %74
+  %77 = or disjoint i64 %76, %74
   %78 = getelementptr inbounds [624 x i64], ptr %0, i64 0, i64 396
   %79 = load i64, ptr %78, align 8, !tbaa !31
   %80 = lshr exact i64 %77, 1
@@ -736,44 +736,43 @@ define linkonce_odr dso_local noundef i64 @_ZNSt23mersenne_twister_engineImLm32E
 
 declare void @_ZNSt13random_device7_M_finiEv(ptr noundef nonnull align 8 dereferenceable(5000)) local_unnamed_addr #1
 
-declare void @_Z11simPutPixeliii(i32 noundef, i32 noundef, i32 noundef) local_unnamed_addr #1
+declare void @simPutPixel(i32 noundef, i32 noundef, i32 noundef) local_unnamed_addr #1
 
 ; Function Attrs: nobuiltin nounwind
 declare void @_ZdaPv(ptr noundef) local_unnamed_addr #8
 
-; Function Attrs: nocallback nofree nosync nounwind willreturn memory(inaccessiblemem: readwrite)
-declare void @llvm.assume(i1 noundef) #10
+; Function Attrs: nocallback nofree nosync nounwind willreturn memory(inaccessiblemem: write)
+declare void @llvm.assume(i1 noundef) #9
 
 ; Function Attrs: nofree nounwind
-declare noundef i32 @puts(ptr nocapture noundef readonly) local_unnamed_addr #11
+declare noundef i32 @puts(ptr nocapture noundef readonly) local_unnamed_addr #10
 
 ; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: write)
-declare void @llvm.memset.p0.i64(ptr nocapture writeonly, i8, i64, i1 immarg) #12
+declare void @llvm.memset.p0.i64(ptr nocapture writeonly, i8, i64, i1 immarg) #11
 
 ; Function Attrs: nocallback nofree nosync nounwind speculatable willreturn memory(none)
-declare i32 @llvm.smax.i32(i32, i32) #13
+declare i32 @llvm.smax.i32(i32, i32) #12
 
 ; Function Attrs: nocallback nofree nosync nounwind speculatable willreturn memory(none)
-declare i32 @llvm.smin.i32(i32, i32) #13
+declare i32 @llvm.smin.i32(i32, i32) #12
 
-attributes #0 = { norecurse noreturn uwtable "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
-attributes #1 = { "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #0 = { mustprogress norecurse noreturn sspstrong uwtable "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #1 = { "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
 attributes #2 = { mustprogress nocallback nofree nosync nounwind willreturn memory(argmem: readwrite) }
 attributes #3 = { mustprogress nocallback nofree nounwind willreturn memory(argmem: readwrite) }
-attributes #4 = { uwtable "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
-attributes #5 = { nofree nounwind "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
-attributes #6 = { nobuiltin nounwind allocsize(0) "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
-attributes #7 = { noinline noreturn nounwind "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
-attributes #8 = { nobuiltin nounwind "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
-attributes #9 = { mustprogress uwtable "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
-attributes #10 = { nocallback nofree nosync nounwind willreturn memory(inaccessiblemem: readwrite) }
-attributes #11 = { nofree nounwind }
-attributes #12 = { nocallback nofree nounwind willreturn memory(argmem: write) }
-attributes #13 = { nocallback nofree nosync nounwind speculatable willreturn memory(none) }
-attributes #14 = { nounwind }
-attributes #15 = { builtin nounwind }
-attributes #16 = { builtin nounwind allocsize(0) }
-attributes #17 = { noreturn nounwind }
+attributes #4 = { mustprogress sspstrong uwtable "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #5 = { nofree nounwind "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #6 = { nobuiltin nounwind allocsize(0) "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #7 = { noinline noreturn nounwind sspstrong uwtable "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #8 = { nobuiltin nounwind "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #9 = { nocallback nofree nosync nounwind willreturn memory(inaccessiblemem: write) }
+attributes #10 = { nofree nounwind }
+attributes #11 = { nocallback nofree nounwind willreturn memory(argmem: write) }
+attributes #12 = { nocallback nofree nosync nounwind speculatable willreturn memory(none) }
+attributes #13 = { nounwind }
+attributes #14 = { builtin nounwind }
+attributes #15 = { builtin nounwind allocsize(0) }
+attributes #16 = { noreturn nounwind }
 
 !llvm.module.flags = !{!0, !1, !2, !3}
 !llvm.ident = !{!4}
@@ -782,7 +781,7 @@ attributes #17 = { noreturn nounwind }
 !1 = !{i32 8, !"PIC Level", i32 2}
 !2 = !{i32 7, !"PIE Level", i32 2}
 !3 = !{i32 7, !"uwtable", i32 2}
-!4 = !{!"Debian clang version 16.0.6 (27+b1)"}
+!4 = !{!"clang version 18.1.8"}
 !5 = !{!6, !7, i64 0}
 !6 = !{!"_ZTS5Image", !7, i64 0, !7, i64 4, !7, i64 8, !7, i64 12, !7, i64 16, !10, i64 24}
 !7 = !{!"int", !8, i64 0}
